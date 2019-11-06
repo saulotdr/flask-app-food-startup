@@ -1,54 +1,44 @@
 from src.ingredient import Ingredient
 
+
 class Snack:
     pre_defined = {
-        'X-Bacon': {
-            'id' : 0,
-            'ingredientes': [
-                'Pão com gergelim', 'Bacon', 'Hambúrguer de carne', 'Queijo'
-            ],
-            'preco': Ingredient.pre_defined
-        },
-        'X-Burguer': {
-            'id' : 1,
-            'ingredientes': {
-                'Pão com gergelim': Ingredient.pre_defined['Pão com gergelim'],
-                'Hambúrguer de carne': Ingredient.pre_defined['Hambúrguer de carne'],
-                'Queijo': Ingredient.pre_defined['Queijo']
+        'lanches': [
+            {
+                'id': 0,
+                'nome': 'X-Bacon',
+                'ingredientes': ['Pão com gergelim', 'Bacon', 'Hambúrguer de carne', 'Queijo']
+            },
+            {
+                'id': 1,
+                'nome': 'X-Burguer',
+                'ingredientes': ['Pão com gergelim', 'Hambúrguer de carne', 'Queijo']
+            },
+            {
+                'id': 2,
+                'nome': 'X-Egg',
+                'ingredientes': ['Pão com gergelim', 'Ovo', 'Hambúrguer de carne', 'Queijo']
+            },
+            {
+                'id': 3,
+                'nome': 'X-Egg Bacon',
+                'ingredientes': ['Pão com gergelim', 'Alface', 'Ovo', 'Bacon', 'Hambúrguer de carne', 'Queijo']
             }
-        },
-        'X-Egg': {
-            'id' : 2,
-            'ingredientes': {
-                'Pão com gergelim': Ingredient.pre_defined['Pão com gergelim'],
-                'Ovo': Ingredient.pre_defined['Ovo'],
-                'Hambúrguer de carne': Ingredient.pre_defined['Hambúrguer de carne'],
-                'Queijo': Ingredient.pre_defined['Queijo']
-            }
-        },
-        'X-Egg Bacon': {
-            'id' : 3,
-            'ingredientes': {
-                'Pão com gergelim': Ingredient.pre_defined['Pão com gergelim'],
-                'Alface': Ingredient.pre_defined['Alface'],
-                'Ovo': Ingredient.pre_defined['Ovo'],
-                'Bacon': Ingredient.pre_defined['Bacon'],
-                'Hambúrguer de carne': Ingredient.pre_defined['Hambúrguer de carne'],
-                'Queijo': Ingredient.pre_defined['Queijo']
-            }
-        }
+        ]
     }
 
     @staticmethod
     def get_all_snacks_names():
-        snacks = list()
-        for k, v in Snack.pre_defined.items():
-            snacks.append(k)
-        return {'lanches': snacks}
+        snacks = Snack.pre_defined['lanches']
+        snack_list = list()
+        for snack in snacks:
+            snack_list.append(snack['nome'])
+        return {'lanches': snack_list}
 
     @staticmethod
-    def get_snack_ingredient_and_price_by_id(snack_id):
-        pass
-
-
-
+    def get_snack_ingredients_and_price_by_id(snack_id):
+        for snack in Snack.pre_defined['lanches']:
+            print(snack)
+            if snack['id'] == snack_id:
+                snack['preco'] = Ingredient.get_price_by_ingredients_list(snack['ingredientes'])
+                return snack
