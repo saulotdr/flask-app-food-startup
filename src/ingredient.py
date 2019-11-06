@@ -14,3 +14,11 @@ class Ingredient:
         for k, v in Ingredient.pre_defined.items():
             ingredients.append(k)
         return {'ingredientes': ingredients}
+
+    @staticmethod
+    def get_price_by_ingredients_list(ingredients):
+        price = 0
+        for item in ingredients:
+            price = price + Ingredient.pre_defined[item]
+        return price
+
