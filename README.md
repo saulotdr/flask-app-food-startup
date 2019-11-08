@@ -36,7 +36,7 @@ $ flask run --host=0.0.0.0 --port=8080
 
 ## Tests
 
-There are a bunch of types of tests you can run against this Lambda:
+The unit tests can be executed in the section below:
 
 - [unit test](tests)
 
