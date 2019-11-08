@@ -1,6 +1,6 @@
 # Food startup web server 
 
-🐍 [![Python version](https://img.shields.io/badge/python-3.6-blue)](https://python.org)
+🐍 [![Python version](https://img.shields.io/badge/python-3.6-blue)](https://python.org)</br>
 🌶 [![Flask version](https://img.shields.io/badge/flask-1.1.1-blue)](https://python.org)
 
 ## Flow 
