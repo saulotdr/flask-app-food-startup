@@ -1,15 +1,12 @@
 import logging
 from http import HTTPStatus
-
 from fastjsonschema import JsonSchemaException
 from flask import Flask, request, jsonify
-
 from src import constants
 from src.order import Order
 from src.sale import Sale
 from src.snack import Snack, Ingredient
 from src.validation import validate_payload
-
 
 """ Logger """
 logger = logging.getLogger(__name__)
@@ -32,11 +29,13 @@ def get_snack_ingredients_and_price(id_lanche):
     logger.debug("Received request. id_lanche {0}".format(id_lanche))
     try:
         id_lanche = int(id_lanche)
+        logger.error('Not a valid integer')
     except ValueError:
-        return bad_request(constants.MESSAGE_SHOULD_BE_INTEGER_PTBR, input_received=id_lanche)
+        logger.error('Not an integer')
+        return bad_request(constants.MESSAGE_INTEGER_ONLY_PTBR, input_received=id_lanche)
 
     if id_lanche < 0 or id_lanche > 3:
-        return bad_request(constants.MESSAGE_SHOULD_HAVE_A_VALID_SNACKID_PTBR, input_received=id_lanche)
+        return bad_request(constants.MESSAGE_INVALID_SNACKID_PTBR, input_received=id_lanche)
 
     return ok(Snack.get_snack_info_per_id(id_lanche))
 
@@ -54,36 +53,35 @@ def get_sales():
 
 
 @app.route('/api/pedido/<id_lanche>', methods=['PUT'])
-def put_snack_in_shopping_cart(id_lanche):
-    logger.debug("Received request. id_lanche {0}".format(id_lanche))
+def create_shopping_cart_with_snackid(id_lanche):
+    logger.debug('Received request. id_lanche {0}'.format(id_lanche))
 
-    # id_lanche is an integer?
     try:
         id_lanche = int(id_lanche)
     except ValueError:
-        return bad_request(constants.MESSAGE_SHOULD_BE_INTEGER_PTBR, input_received=id_lanche)
+        logger.error('Not an integer')
+        return bad_request(constants.MESSAGE_INTEGER_ONLY_PTBR, input_received=id_lanche)
 
-    # id_lanche is not negative?
     if id_lanche < 0:
-        return bad_request(constants.MESSAGE_SHOULD_HAVE_A_VALID_SNACKID_PTBR, input_received=id_lanche)
+        logger.error('Not a positive integer')
+        return bad_request(constants.MESSAGE_INVALID_SNACKID_PTBR, input_received=id_lanche)
 
-    # is this a custom snack?
     if id_lanche > 3:
+        ingredients = request.json
 
-        # custom snacks need the ingredients list
-        if request.json is None:
+        if ingredients is None or not ingredients:
             logger.debug('JSON is empty')
             return bad_request(constants.MESSAGE_EMPTY_JSON_PTBR)
-        logger.debug('JSON received {0}'.format(request.json))
+        logger.debug('JSON received {0}'.format(ingredients))
 
-        # The list received should only have the pre-defined ingredients
         try:
-            validate_payload(request.json)
+            validate_payload(ingredients)
+            logger.debug('Ingredients JSON successfully validated')
         except JsonSchemaException as err:
             logger.error('Invalid payload. {0}'.format(err))
-            return bad_request(constants.MESSAGE_INVALID_INGREDIENTS_JSON_PTBR)
+            return bad_request(constants.MESSAGE_INVALID_INGREDIENTS_PTBR)
 
-        snack = Snack(id_lanche, ingredients=request.json)
+        snack = Snack(id_lanche, ingredients=ingredients['ingredientes'])
         Snack.custom_snacks.append(snack)
 
     # create the order with the given id
@@ -92,6 +90,55 @@ def put_snack_in_shopping_cart(id_lanche):
     update_order_cache(order)
 
     return ok({'token': order.token})
+
+
+@app.route('/api/pedido/<token>/<id_lanche>', methods=['PUT'])
+def put_snack_in_shopping_cart(token, id_lanche):
+    logger.debug('Received request. token {0}, id_lanche {1}'.format(token, id_lanche))
+
+    requested_order = None
+    for order in Order.orders_cache:
+        if order.token == token:
+            logger.debug('order found')
+            requested_order = order
+
+    if requested_order is None or not requested_order:
+        logger.error('Shopping cart does not exist')
+        return bad_request(constants.MESSAGE_INVALID_SHOPPING_CART_PTBR)
+
+    try:
+        id_lanche = int(id_lanche)
+        logger.debug('Snack ID is an integer')
+    except ValueError:
+        logger.error('Not an integer')
+        return bad_request(constants.MESSAGE_INTEGER_ONLY_PTBR, input_received=id_lanche)
+
+    if id_lanche < 0:
+        logger.error('Not a positive integer')
+        return bad_request(constants.MESSAGE_INVALID_SNACKID_PTBR, input_received=id_lanche)
+
+    if id_lanche > 3:
+        logger.debug('Custom snack requested')
+        ingredients = request.json
+        if ingredients is None or not ingredients:
+            logger.debug('JSON is empty')
+            return bad_request(constants.MESSAGE_EMPTY_JSON_PTBR)
+        logger.debug('JSON received {0}'.format(ingredients))
+
+        try:
+            validate_payload(ingredients)
+            logger.debug('Ingredients JSON successfully validated')
+        except JsonSchemaException as err:
+            logger.error('Invalid payload. {0}'.format(str(err)))
+            return bad_request(constants.MESSAGE_INVALID_INGREDIENTS_PTBR)
+
+        snack = Snack(id_lanche, ingredients=ingredients['ingredientes'])
+        Snack.custom_snacks.append(snack)
+
+    requested_order.update_order(id_lanche)
+    update_order_cache(requested_order)
+
+    return ok({'r': 'Ok', 'token': requested_order.token})
 
 
 @app.route('/api/pedido/de/<token>', methods=['GET'])
@@ -112,14 +159,14 @@ def get_order_by_token(token):
 
 def update_order_cache(order):
     logger.debug('Order information: {0}'.format(order))
-    Order.orders_cache.append(order)
+    Order.orders_cache.add(order)
     logger.debug('Orders cache updated')
     for order in Order.orders_cache:
         logger.debug(order)
 
 
 def bad_request(message, input_received=None):
-    logger.error("Invalid input received: {0}".format(input_received))
+    logger.error("Invalid input received: {0}".format(input_received if input_received is not None else ''))
     return jsonify({'erro': message}), HTTPStatus.BAD_REQUEST, constants.JSON_HEADER
 
 

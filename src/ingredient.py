@@ -25,29 +25,41 @@ class Ingredient:
             'nome': 'Pão com gergelim',
             'preco': 1
         },
-
     ]
 
     @staticmethod
     def get_all_ingredients_names():
         ingredients = list()
         for ingredient in Ingredient.pre_defined:
-            ingredients.append(ingredient['nome'])
+            ing_dict = {
+                'id': ingredient['id'],
+                'nome': ingredient['nome']
+            }
+            ingredients.append(ing_dict)
         return {'ingredientes': ingredients}
 
     @staticmethod
-    def get_all_ingredients_names_list():
-        ingredients = list()
+    def get_all_ingredients_ids():
+        ids = list()
         for ingredient in Ingredient.pre_defined:
-            ingredients.append(ingredient['nome'])
-        return ingredients
+            ids.append(ingredient['id'])
+        return ids
 
     @staticmethod
-    def get_price_by_ingredients_list(ingredients):
+    def get_price_by_ingredients_names_list(ingredients):
         price = 0
         for ingredient in ingredients:
-            for itens in Ingredient.pre_defined:
-                if ingredient in itens['nome']:
-                    price = price + itens['preco']
+            for item in Ingredient.pre_defined:
+                if ingredient in item['nome']:
+                    price = price + item['preco']
+        return price
+
+    @staticmethod
+    def get_price_by_ingredients_ids_list(ingredients):
+        price = 0
+        for ingredient in ingredients:
+            for item in Ingredient.pre_defined:
+                if ingredient == item['id']:
+                    price = price + item['preco']
         return price
 

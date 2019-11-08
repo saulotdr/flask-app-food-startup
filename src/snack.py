@@ -34,6 +34,7 @@ class Snack:
     def __init__(self, snack_id, ingredients=None):
         self.snack_id = snack_id
         self.name = 'Personalizado {0}'.format(snack_id)
+        self.price = Ingredient.get_price_by_ingredients_ids_list(ingredients)
         self.ingredients = ingredients
 
     @staticmethod
@@ -46,21 +47,20 @@ class Snack:
 
     @staticmethod
     def get_snack_info_per_id(snack_id):
-        # is this a predefined snack?
-        if snack_id < 3:
+        if snack_id <= 3:
             for snack in Snack.pre_defined['lanches']:
                 if snack['id'] == snack_id:
-                    snack['preco'] = Ingredient.get_price_by_ingredients_list(snack['ingredientes'])
+                    snack['preco'] = Ingredient.get_price_by_ingredients_names_list(snack['ingredientes'])
+                    logger.debug('Pre-defined snack: {0}'.format(snack))
                     return snack
         # it is a custom snack!
         for custom_snack in Snack.custom_snacks:
             if custom_snack.snack_id == snack_id:
-                return {
-                    'id': custom_snack.id,
+                snack = {
+                    'id': custom_snack.snack_id,
                     'nome': custom_snack.name,
                     'ingredientes': custom_snack.ingredients,
-                    'preco': Ingredient.get_price_by_ingredients_list(custom_snack.ingredients)
+                    'preco': custom_snack.price
                 }
-        # snack id is missing from cache
-        logger.error("Snack is missing from cache")
-        return None
+                logger.debug('Custom snack: {0}'.format(snack))
+                return snack
