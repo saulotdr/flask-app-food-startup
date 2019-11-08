@@ -24,11 +24,12 @@ You should install [Pipenv](https://docs.pipenv.org), a package tool for Python 
 $ sudo pip3 install pipenv
 ```
 
-## Running the flask server
+## Running the web server
 
 In the project's root folder, run the flask app globally and with the desired port
 
 ```
+$ pipenv shell
 $ export FLASK_APP=src/route.py
 $ flask run --host=0.0.0.0 --port=8080
 ```
@@ -37,7 +38,7 @@ $ flask run --host=0.0.0.0 --port=8080
 
 There are a bunch of types of tests you can run against this Lambda:
 
-- [unit test](tests/unit)
+- [unit test](tests)
 
 
 
