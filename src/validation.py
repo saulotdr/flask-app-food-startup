@@ -11,8 +11,8 @@ validate = compile_schema({
             'minItems': 1,
             'items': [
                 {
-                    'type': 'string',
-                    'enum': Ingredient.get_all_ingredients_names_list()
+                    'type': 'number',
+                    'enum': Ingredient.get_all_ingredients_ids()
                 }
             ]
         }
