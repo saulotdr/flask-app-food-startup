@@ -24,6 +24,12 @@ You should install [Pipenv](https://docs.pipenv.org), a package tool for Python 
 $ sudo pip3 install pipenv
 ```
 
+After install pipenv, enter in the project's root folder and install all packages dependencies described in Pipfile
+
+```bash
+$ pipenv install
+```
+
 ## Running the web server
 
 In the project's root folder, run the flask app globally and with the desired port
