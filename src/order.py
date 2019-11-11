@@ -9,7 +9,12 @@ logger = getLogger(__name__)
 
 
 class Order:
-    orders_cache = set()
+    orders_cache = dict()
+
+    def __init__(self, token, snack_list, total):
+        self.token = token
+        self.snack_list = snack_list
+        self.total = total
 
     def __init__(self):
         self.token = self.generate_order_token()

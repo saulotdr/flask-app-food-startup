@@ -1,5 +1,7 @@
 import logging
 from http import HTTPStatus
+from json import dumps
+
 from fastjsonschema import JsonSchemaException
 from flask import Flask, request, jsonify
 from src import constants
@@ -97,10 +99,9 @@ def put_snack_in_shopping_cart(token, id_lanche):
     logger.debug('Received request. token {0}, id_lanche {1}'.format(token, id_lanche))
 
     requested_order = None
-    for order in Order.orders_cache:
-        if order.token == token:
-            logger.debug('order found')
-            requested_order = order
+    if token in Order.orders_cache:
+        logger.debug('Order with token {0} found'.format(token))
+        requested_order = Order.orders_cache[token]
 
     if requested_order is None or not requested_order:
         logger.error('Shopping cart does not exist')
@@ -146,23 +147,26 @@ def get_order_by_token(token):
     logger.debug("Received request. token {0}".format(token))
     requested_order = None
 
-    for order in Order.orders_cache:
-        if order.token == token:
-            logger.debug('Order found')
-            requested_order = order
+    if token in Order.orders_cache:
+        logger.debug('Order with token {0} found'.format(token))
+        requested_order = Order.orders_cache[token]
 
     if requested_order is None:
         return bad_request(constants.MESSAGE_ORDER_WITH_INVALID_TOKEN_PTBR.format(token), input_received=token)
 
-    return ok({'pedido': requested_order})
+    return ok({'pedido': dumps(str(requested_order), separators=(',', ':'))})
 
 
 def update_order_cache(order):
     logger.debug('Order information: {0}'.format(order))
-    Order.orders_cache.add(order)
+    Order.orders_cache[order.token] = order
     logger.debug('Orders cache updated')
-    for order in Order.orders_cache:
-        logger.debug(order)
+    print_order_cache()
+
+
+def print_order_cache():
+    for k, v in Order.orders_cache.items():
+        logger.debug('{0}, {1}'.format(k, v))
 
 
 def bad_request(message, input_received=None):
