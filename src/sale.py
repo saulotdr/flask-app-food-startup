@@ -31,5 +31,5 @@ class Sale:
         if meat in total and total[meat] > 3 or cheese in total and total[cheese] > 3:
             return 0.666667
         if lettuce in total and bacon not in total:
-            return 0.10
+            return 0.90
         return 1
