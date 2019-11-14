@@ -3,9 +3,11 @@
 🐍 [![Python version](https://img.shields.io/badge/python-3.6-blue)](https://python.org)</br>
 🌶 [![Flask version](https://img.shields.io/badge/flask-1.1.1-blue)](https://python.org)
 
-## Flow 
+## Getting started 
 
 This web server implements all the requirements needed by client. The requirements document is available [here](requirements.pdf)
+
+This solution uses [Flask](https://github.com/pallets/flask) framework.
 
 ## Configuration
 
